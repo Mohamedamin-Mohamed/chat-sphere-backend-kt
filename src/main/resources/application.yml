@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: chatspherekotlin
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: false
+
+  datasource:
+    url: jdbc:postgresql://chat-sphere.c3eku6gcs1gb.us-east-2.rds.amazonaws.com:5432/postgres
+    username: postgres
+    password: Khadhar1210
+    driver-class-name: org.postgresql.Driver
+
+  hikari:
+    maximum-pool-size: 10
+    connection-timeout: 30000
+    minimum-idle: 2
+    idle-timeout: 600000
+
+
+redis:
+  redisHost: included-lion-53337.upstash.io
+  redisPassword: AdBZAAIjcDFiODIyZjkzYzBmMmU0OTdjYTAzZjRmYjQ0MjBlYTUwOHAxMA
+  redisPort: 6379
+  redisVerificationKey: email:verification_code
+
+fileNames:
+  verificationCode: verification_code
+
+mailjet:
+  apiKey: 3fa1e45897449126cbe6b9afe4649e29
+  apiSecretKey: 979dedb990c163e00f38f1be3f6ade02
+  senderEmail: mohamedamin204080@gmail.com
+  senderName: Chat Sphere Team
+
+twilio:
+  accountSID: AC990c1519968332a96223b60bcf7a2069
+  authToken: f3033843f1c82482f7aa129917e8b891
+  verificationSID: VAfd5d2eac3eef96dd8afdf38f37d2d11a
+  statusPending: pending
+  statusApproved: approved
+
+openAI:
+  apiKey: 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
+  embeddingURL: https://api.openai.com/v1/embeddings
+  embeddingModel: text-embedding-3-small
+  chatCompletionsURL: https://api.openai.com/v1/chat/completions
+  chatCompletionsModel: gpt-3.5-turbo
+  chatCompletionsMaxTokens: 100
+
+OpenSearch:
+  indexName: embedding-index
+  url: search-chat-sphere-hzfz6ja5xmgihre4isn66uf3mi.us-east-2.es.amazonaws.com
+  username: khadhar
+  password: Khadhar@1210
+  port: 443
+  protocol: https
+  searchField: embeddings
+
+AWS:
+  accessKeyId: AKIAUJQ7RSQ27CVSR3NY
+  secretAccessKey: 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
+  s3BucketName: chat-sphere-images
+  s3BucketKeyName: uploads/
+  region: us-east-2
+
+security:
+  jwt:
+    secret:
+      key: FqY6mxydd62Q3ZhJTKm6pA6Fp7YIYp4CpWbtpzA5KLU=
+    issure: Chat-Sphere-Backend
+logging:
+  level:
+    root: info
+
