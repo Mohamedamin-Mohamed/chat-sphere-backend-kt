@@ -8,11 +8,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("api/profile")
+@Validated
 class ProfileController(
     private val userService: UserService
 ) {
@@ -30,7 +32,7 @@ class ProfileController(
         val userDTO: UserDTO? = userService.updateProfile(updateProfileDTO, multipartFile)
         val profileUpdated = userDTO != null
 
-        val response: MutableMap<String, Any?> = hashMapOf()
+        val response: MutableMap<String, Any?> = mutableMapOf()
         response["user"] = userDTO
         response["message"] = if (profileUpdated) "Profile has been updated successfully" else "Profile update failed"
 
