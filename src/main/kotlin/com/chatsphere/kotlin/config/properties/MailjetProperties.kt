@@ -5,9 +5,10 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConfigurationProperties("mailjet")
-data class EmailProperties(
+data class MailjetProperties(
+    val apiKey: String = "",
+    val apiSecretKey: String = "",
     val senderEmail: String = "",
     val senderName: String = "",
-    val fileName: String = "",
 ) {
 }
