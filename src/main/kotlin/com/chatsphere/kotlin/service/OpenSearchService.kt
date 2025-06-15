@@ -1,5 +1,6 @@
 package com.chatsphere.kotlin.service
 
+import com.chatsphere.kotlin.config.properties.OpenSearchProperties
 import com.chatsphere.kotlin.dto.EmbeddingDTO
 import com.chatsphere.kotlin.dto.VectorStoreDTO
 import com.chatsphere.kotlin.exception.DocumentNotIndexedException
@@ -11,14 +12,12 @@ import org.opensearch.client.opensearch.core.SearchResponse
 import org.opensearch.client.opensearch.core.search.Hit
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 
 @Service
 class OpenSearchService(
-    @Value("\${OpenSearch.indexName}") val indexName: String,
-    @Value("\${OpenSearch.searchField}") val searchField: String,
+    private val openSearchProperties: OpenSearchProperties,
     private val client: OpenSearchClient,
 ) {
     companion object {
@@ -30,7 +29,7 @@ class OpenSearchService(
             val vectorStoreDTO: VectorStoreDTO = getVectorStoreEquivalent(embeddingDTO, embedding)
             val indexRequest = IndexRequest
                 .Builder<VectorStoreDTO>()
-                .index(indexName)
+                .index(openSearchProperties.indexName)
                 .document(vectorStoreDTO)
                 .build()
 
@@ -56,11 +55,11 @@ class OpenSearchService(
         try {
             val searchRequest = SearchRequest
                 .Builder()
-                .index(indexName)
+                .index(openSearchProperties.indexName)
                 .size(10)
                 .query { q ->
                     q.knn {
-                        it.field(searchField)
+                        it.field(openSearchProperties.searchField)
                             .vector(embeddings)
                     }
                 }
@@ -84,10 +83,10 @@ class OpenSearchService(
         }
     }
 
-    fun searchResponse() {
+    private fun searchResponse() {
         val searchRequest = SearchRequest
             .Builder()
-            .index(indexName)
+            .index(openSearchProperties.indexName)
             .query {
                 it.matchAll { m -> m }
             }

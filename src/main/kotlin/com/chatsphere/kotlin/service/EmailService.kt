@@ -1,6 +1,8 @@
 package com.chatsphere.kotlin.service
 
 import com.chatsphere.kotlin.config.MailjetConfig
+import com.chatsphere.kotlin.config.properties.FileNamesProperties
+import com.chatsphere.kotlin.config.properties.MailjetProperties
 import com.chatsphere.kotlin.dto.MailjetDTO
 import com.chatsphere.kotlin.exception.EmptyVerificationCodeException
 import com.mailjet.client.MailjetRequest
@@ -9,7 +11,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -17,20 +18,16 @@ import java.io.InputStreamReader
 @Service
 class EmailService(
     private val mailjetConfig: MailjetConfig,
-    @Value("\${mailjet.senderEmail}") private val senderEmail: String,
-    @Value("\${mailjet.senderName}") private val senderName: String,
-    @Value("\${fileNames.verificationCode}") private val fileName: String,
-    private val codeGeneratorService: CodeGeneratorService,
+    private val mailjetProperties: MailjetProperties,
+    private val fileNamesProperties: FileNamesProperties,
 ) {
-    companion object {
-        val logger: Logger = LoggerFactory.getLogger(EmailService::class.java)
-    }
+    val logger: Logger = LoggerFactory.getLogger(EmailService::class.java)
 
     fun sendVerificationEmail(recipientEmail: String, code: String): Boolean {
         logger.info("Sending verification code $code for $recipientEmail")
         if (code.isEmpty()) throw EmptyVerificationCodeException("Verification code need to be specified")
 
-        val template = getEmailTemplate(fileName)
+        val template = getEmailTemplate(fileNamesProperties.verificationCode)
         val templateLines: List<String> = template.split("\\r?\\n")
 
         val subject = templateLines[0].replace("Subject: ", "")
@@ -58,8 +55,8 @@ class EmailService(
                         JSONObject()
                             .put(
                                 Emailv31.Message.FROM, JSONObject()
-                                    .put("Email", senderEmail)
-                                    .put("Name", senderName)
+                                    .put("Email", mailjetProperties.senderEmail)
+                                    .put("Name", mailjetProperties.senderName)
                             )
                             .put(
                                 Emailv31.Message.TO, JSONArray().put(

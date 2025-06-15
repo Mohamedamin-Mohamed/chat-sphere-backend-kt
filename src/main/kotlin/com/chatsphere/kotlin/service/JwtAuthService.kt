@@ -1,10 +1,10 @@
 package com.chatsphere.kotlin.service
 
+import com.chatsphere.kotlin.config.properties.JWTProperties
 import com.chatsphere.kotlin.model.User
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.base64.Base64
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.crypto.SecretKey
@@ -12,12 +12,11 @@ import javax.crypto.spec.SecretKeySpec
 
 @Service
 class JwtAuthService(
-    @Value("\${security.jwt.secret.key}") val jwtSecretKey: String,
-    @Value("\${security.jwt.issure}") val jwtIssuer: String
+    private val jwtProperties: JWTProperties
 ) {
 
     fun secretKey(): SecretKey {
-        val keyBytes: ByteArray? = Base64.decode(jwtSecretKey)
+        val keyBytes: ByteArray? = Base64.decode(jwtProperties.secretKey)
         return SecretKeySpec(keyBytes, "HmacSHA256")
     }
 
@@ -28,7 +27,7 @@ class JwtAuthService(
         return Jwts
             .builder()
             .setSubject(user.email)
-            .setIssuer(jwtIssuer)
+            .setIssuer(jwtProperties.issuer)
             .claim("permissions", permissions)
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(Date(System.currentTimeMillis() + 3600 * 1000))
@@ -38,7 +37,7 @@ class JwtAuthService(
 
     fun isTokenValid(token: String, user: User): Boolean {
         val email: String = extractEmailAddressFromToken(token)
-        return (email == user.email && extractIssuer(token) == jwtIssuer && !isTokenExpired(token))
+        return (email == user.email && extractIssuer(token) == jwtProperties.issuer && !isTokenExpired(token))
     }
 
     private fun extractIssuer(token: String): String = extractClaim(token, Claims::getIssuer)

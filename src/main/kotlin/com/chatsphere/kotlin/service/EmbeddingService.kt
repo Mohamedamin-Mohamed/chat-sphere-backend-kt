@@ -1,5 +1,6 @@
 package com.chatsphere.kotlin.service
 
+import com.chatsphere.kotlin.config.properties.OpenAIProperties
 import com.chatsphere.kotlin.dto.EmbeddingDTO
 import com.chatsphere.kotlin.dto.EmbeddingRequestDTO
 import com.chatsphere.kotlin.exception.EmbeddingNotCreatedException
@@ -7,29 +8,25 @@ import com.chatsphere.kotlin.util.HttpResponseUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.net.http.HttpResponse
 
 @Service
 class EmbeddingService(
-    @Value("\${openAI.apiKey}") private val apiKey: String,
-    @Value("\${openAI.embeddingURL}") private val embeddingUrl: String,
-    @Value("\${openAI.embeddingModel}") private val embeddingModel: String,
+    private val openAIProperties: OpenAIProperties,
     private val openSearchService: OpenSearchService,
 ) {
-    companion object {
-        val logger: Logger = LoggerFactory.getLogger(EmbeddingService::class.java)
-    }
+    val logger: Logger = LoggerFactory.getLogger(EmbeddingService::class.java)
 
     fun createEmbedding(input: String): HttpResponse<String> {
         try {
             val requestBody: MutableMap<String, Any> = hashMapOf()
-            requestBody["model"] = embeddingModel
+            requestBody["model"] = openAIProperties.embeddingModel
             requestBody["input"] = input
 
 
-            val httpResponse = HttpResponseUtil.httpResponse(apiKey, embeddingUrl, requestBody)
+            val httpResponse =
+                HttpResponseUtil.httpResponse(openAIProperties.apiKey, openAIProperties.embeddingURL, requestBody)
             if (httpResponse.statusCode() != 200) {
                 throw EmbeddingNotCreatedException("Error occurred when creating embedding")
             }
