@@ -1,5 +1,7 @@
 package com.chatsphere.kotlin.config
 
+import com.chatsphere.kotlin.config.properties.AWSProperties
+import com.chatsphere.kotlin.config.properties.OpenSearchProperties
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -11,33 +13,25 @@ import org.opensearch.client.RestClient
 import org.opensearch.client.json.jackson.JacksonJsonpMapper
 import org.opensearch.client.opensearch.OpenSearchClient
 import org.opensearch.client.transport.rest_client.RestClientTransport
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
-
-import javax.net.ssl.SSLContext
 import java.security.KeyManagementException
 import java.security.NoSuchAlgorithmException
+import javax.net.ssl.SSLContext
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${OpenSearch.url}") val url: String,
-    @Value("\${OpenSearch.username}") val userName: String,
-    @Value("\${OpenSearch.password}") val password: String,
-    @Value("\${OpenSearch.port}") val port: Int,
-    @Value("\${OpenSearch.protocol}") val protocol: String,
-    @Value("\${AWS.accessKeyId}") val accessKeyId: String,
-    @Value("\${AWS.secretAccessKey}") val secretAccessKey: String,
-    @Value("\${AWS.region}") val region: String
+    private val openSearchProperties: OpenSearchProperties,
+    private val awsProperties: AWSProperties,
 ) {
     @Bean
     fun awsCredentialsProvider(): AwsCredentialsProvider {
         return AwsCredentialsProvider {
-            AwsBasicCredentials.create(accessKeyId, secretAccessKey)
+            AwsBasicCredentials.create(awsProperties.accessKeyId, awsProperties.secretAccessKey)
         }
     }
 
@@ -45,7 +39,7 @@ class ApplicationConfig(
     fun s3Client(): S3Client {
         return S3Client
             .builder()
-            .region(Region.of(region))
+            .region(Region.of(awsProperties.region))
             .credentialsProvider(awsCredentialsProvider())
             .build()
     }
@@ -53,13 +47,16 @@ class ApplicationConfig(
     @Bean
     fun openSearchCredentialsProvider(): CredentialsProvider {
         val basicCredentialsProvider = BasicCredentialsProvider()
-        basicCredentialsProvider.setCredentials(AuthScope.ANY, UsernamePasswordCredentials(userName, password))
+        basicCredentialsProvider.setCredentials(
+            AuthScope.ANY,
+            UsernamePasswordCredentials(openSearchProperties.userName, openSearchProperties.password)
+        )
         return basicCredentialsProvider
     }
 
     @Bean
     fun httpHost(): HttpHost {
-        return HttpHost(url, port, protocol)
+        return HttpHost(openSearchProperties.url, openSearchProperties.port, openSearchProperties.protocol)
     }
 
     @Bean
@@ -83,7 +80,6 @@ class ApplicationConfig(
             }
             .build()
     }
-
 
 
     @Bean
