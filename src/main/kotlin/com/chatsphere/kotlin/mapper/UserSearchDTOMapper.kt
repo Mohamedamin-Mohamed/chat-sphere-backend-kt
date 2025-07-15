@@ -1,9 +1,10 @@
-package com.chatsphere.kotlin.mapper
+package com.chatsphere.kotlin.converter
 
 import com.chatsphere.kotlin.dto.UserDTO
 import com.chatsphere.kotlin.dto.UserSearchDTO
 import com.chatsphere.kotlin.dto.UserSearchResponse
 import com.chatsphere.kotlin.exception.EmailNotFoundException
+import com.chatsphere.kotlin.mapper.ModelMapper
 import com.chatsphere.kotlin.model.User
 import com.chatsphere.kotlin.service.FollowService
 import com.chatsphere.kotlin.service.UserRelationshipService
@@ -14,7 +15,7 @@ import java.time.format.DateTimeFormatter
 import java.util.function.BiFunction
 
 @Service
-class UserSearchDTOMapper(
+class UserSearchDTOConverter(
     private val userRelationshipService: UserRelationshipService,
     private val followService: FollowService,
     private val modelMapper: ModelMapper
@@ -35,7 +36,6 @@ class UserSearchDTOMapper(
             .requesterFollowsUser(requesterFollowsUser)
             .requesterIsFollowed(requesterIsFollowed)
             .build()
-
         return modelMapper.map(userSearchResponse)
     }
 
@@ -50,7 +50,8 @@ class UserSearchDTOMapper(
         val requester = userRelationshipService.findByEmail(requesterEmail)
             ?: throw EmailNotFoundException("Requester email not found")
         val followList = followService.findByFollower(requester)
-        return followList.any { it.following?.id == targetUserId }
+        val follows = followList.any { it.following?.id == targetUserId }
+        return follows
     }
 
     private fun getMutualFriends(targetUser: User, requesterEmail: String): List<User> {
@@ -74,8 +75,7 @@ class UserSearchDTOMapper(
         val topThreeMutualFriends = mutualFriendsList.map { modelMapper.map(it) }.take(3)
 
         val topThreeMutualFriendsSearchDTOList = topThreeMutualFriends.map { dto ->
-            UserSearchDTO.Builder()
-                .builder(dto.name, dto.email)
+            UserSearchDTO.Builder(dto.email, dto.name)
                 .bio(dto.bio)
                 .picture(dto.picture)
                 .joinedDate(dto.createdAt)
@@ -88,9 +88,7 @@ class UserSearchDTOMapper(
                 .topThreeMutualFriends(emptyList())
                 .build()
         }
-
-        return UserSearchDTO.Builder()
-            .builder(targetUser.name, targetUser.email)
+        return UserSearchDTO.Builder(targetUser.email, targetUser.name)
             .bio(targetUser.bio)
             .picture(targetUser.picture)
             .joinedDate(formattedDate(targetUser.createdAt))
