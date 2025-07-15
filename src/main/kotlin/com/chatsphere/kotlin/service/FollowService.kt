@@ -2,17 +2,15 @@ package com.chatsphere.kotlin.service
 
 import com.chatsphere.kotlin.dto.FollowFollowingRequest
 import com.chatsphere.kotlin.exception.EmailNotFoundException
-import com.chatsphere.kotlin.mapper.ModelMapper
 import com.chatsphere.kotlin.model.Follow
 import com.chatsphere.kotlin.model.User
 import com.chatsphere.kotlin.repository.FollowRepository
+import followMap
 import jakarta.transaction.Transactional
-import jakarta.validation.Valid
 import org.springframework.stereotype.Service
 
 @Service
 class FollowService(
-    private val modelMapper: ModelMapper,
     private val followRepository: FollowRepository,
     private val userRelationshipService: UserRelationshipService
 ) {
@@ -26,7 +24,13 @@ class FollowService(
         val following = userRelationshipService.findByEmail(followingEmail)
             ?: throw EmailNotFoundException("Following email not found")
 
-        val follow = modelMapper.map(follower, following)
+        val follow = followMap(follower, following)
+        //manage the two-way relationship between user and follow
+        follower.followings.add(follow)
+        following.followers.add(follow)
+        userRelationshipService.saveUser(follower)
+        userRelationshipService.saveUser(following)
+
         followRepository.save(follow)
     }
 

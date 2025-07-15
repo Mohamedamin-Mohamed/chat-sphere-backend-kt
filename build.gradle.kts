@@ -1,3 +1,40 @@
+val kotlinVersion: String by project
+val jvmVersion: String by project
+val postgresqlVersion: String by project
+val jpaPluginVersion: String by project
+
+//Spring
+val springBootVersion: String by project
+val springPluginVersion: String by project
+val springDependencyManagementVersion: String by project
+
+//OpenSearch
+val opensearchJavaClientVersion: String by project
+val opensearchRestClientVersion: String by project
+val apacheHttpAsyncClientVersion: String by project
+val apacheHttpComponent: String by project
+
+//AWS SDK
+val amazonSdkVersion: String by project
+
+//Untitled
+val jakartaValidationVersion: String by project
+val redisClientVersion: String by project
+val mailjetClientVersion: String by project
+val twilioSdkVersion: String by project
+
+//JSON
+val jsonwebtokenVersion: String by project
+val jacksonmoduleKotlinVersion: String by project
+val jsonwebtokenImplVersion: String by project
+val jsonwebtokenJacksonVersion: String by project
+val jwtJacksonVersion: String by project
+
+//Testing
+val mockVersion: String by project
+val ninjaVersion: String by project
+val mockkVersion: String by project
+
 plugins {
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
@@ -11,11 +48,12 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(jvmVersion)
     }
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -26,27 +64,27 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.postgresql:postgresql:42.7.2")
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
-    implementation("redis.clients:jedis:6.0.0")
-    implementation("com.mailjet:mailjet-client:5.2.6")
-    implementation("com.twilio.sdk:twilio:10.9.1")
+    implementation("org.postgresql:postgresql:$postgresqlVersion")
+    implementation("io.jsonwebtoken:jjwt-api:$jsonwebtokenImplVersion")
+    implementation("jakarta.validation:jakarta.validation-api:$jakartaValidationVersion")
+    implementation("redis.clients:jedis:$redisClientVersion")
+    implementation("com.mailjet:mailjet-client:$mailjetClientVersion")
+    implementation("com.twilio.sdk:twilio:$twilioSdkVersion")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.apache.httpcomponents.core5:httpcore5:5.2.1")
-    implementation("org.opensearch.client:opensearch-java:2.12.0")
-    implementation("org.opensearch.client:opensearch-java:2.12.0")
-    implementation("org.opensearch.client:opensearch-rest-client:2.19.2")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-    implementation("software.amazon.awssdk:s3:2.26.0")
-    implementation("com.ninja-squad:springmockk:4.0.2")
+    implementation("org.apache.httpcomponents.core5:httpcore5:$apacheHttpComponent")
+    implementation("org.opensearch.client:opensearch-java:$opensearchJavaClientVersion")
+    implementation("org.opensearch.client:opensearch-rest-client:$opensearchRestClientVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jsonwebtokenImplVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jsonwebtokenImplVersion")
+    implementation(platform("software.amazon.awssdk:bom:$amazonSdkVersion"))
+    implementation("software.amazon.awssdk:s3")
+    implementation("com.ninja-squad:springmockk:$ninjaVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(kotlin("test"))
-    testImplementation("io.mockk:mockk:1.14.2")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 
 kotlin {

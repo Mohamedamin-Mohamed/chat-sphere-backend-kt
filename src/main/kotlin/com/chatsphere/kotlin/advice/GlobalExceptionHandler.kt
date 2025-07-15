@@ -1,8 +1,11 @@
 package com.chatsphere.kotlin.advicer
 
+import com.chatsphere.kotlin.dto.ApiResponseDTO
 import com.chatsphere.kotlin.exception.*
+import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -65,5 +68,17 @@ class GlobalExceptionHandler {
             .body(exp.message)
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(ex: MethodArgumentNotValidException): ResponseEntity<String> {
+        return ResponseEntity
+            .badRequest()
+            .body("Validation failed")
+    }
 
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleConstraintViolationException(exp: ConstraintViolationException): ResponseEntity<ApiResponseDTO> {
+        return ResponseEntity
+            .internalServerError()
+            .body(ApiResponseDTO(false, "Please try again later, server error!"))
+    }
 }

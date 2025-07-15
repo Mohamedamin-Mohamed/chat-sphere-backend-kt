@@ -24,6 +24,7 @@ class RedisService(
             val response = jedis.set(redisProperties.verificationKey + email, code, setParams)
             response.equals("OK")
         } catch (exp: Exception) {
+            logger.error("Failed to add verification code to Redis: ${exp.message}")
             throw RuntimeException(exp)
         }
     }
@@ -33,6 +34,8 @@ class RedisService(
             val jedis = redisConfig.connect()
             return jedis.get(redisProperties.verificationKey + email)?.takeIf { it.isNotEmpty() }
         } catch (exp: Exception) {
+            logger.error("Failed to retrieve verification code from Redis: ${exp.message}")
+
             throw RuntimeException(exp)
         }
     }
