@@ -18,7 +18,7 @@ class ChatMessageController(
         val logger: Logger = LoggerFactory.getLogger(ChatMessageController::class.java)
     }
 
-    @PostMapping("/create")
+    @PostMapping
     fun saveMessage(@RequestBody messageDTO: MessageRequestDTO): ResponseEntity<Any> {
         logger.info("Saving new message from sender ${messageDTO.sender} of length ${messageDTO.message.length}")
 
@@ -26,7 +26,7 @@ class ChatMessageController(
         return ResponseEntity(response, HttpStatus.OK)
     }
 
-    @PostMapping("/messages")
+    @GetMapping
     fun loadMessages(@RequestParam email: String): ResponseEntity<List<Message>> {
         logger.info("Loading messages for $email")
 
